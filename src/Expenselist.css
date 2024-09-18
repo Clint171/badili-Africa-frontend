@@ -1,0 +1,45 @@
+/* ExpenseList.css */
+.container {
+	margin: auto;
+	width: 60%;
+	padding: 20px;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	background-color: #f9f9f9;
+  }
+  
+  .heading {
+	text-align: center;
+	margin-bottom: 20px;
+  }
+  
+  .list {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+  }
+  
+  .list-item {
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
+	margin-bottom: 10px; /* Space between items */
+  }
+  
+  .list-item div {
+	margin-bottom: 5px; /* Space between fields within an item */
+  }
+  
+  .link {
+	display: block;
+	text-align: center;
+	margin-top: 20px;
+	text-decoration: none;
+	color: #007BFF;
+	font-weight: bold;
+  }
+  
+  .link:hover {
+	color: #0056b3;
+  }
+  
