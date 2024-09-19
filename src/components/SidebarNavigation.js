@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const SideNav = () => {
   return (
-    <List component="nav" aria-label="main mailbox folders" style={{ backgroundColor: '#f0f0f0', height: '100vh', padding: '20px' }}>
+    <List component="nav" aria-label="main mailbox folders" style={{ backgroundColor: '#f0f0f0', height: '100vh', width: '250px', padding: '20px' }}>
       <ListItem button component={Link} to="/">
         <ListItemText primary="Log Expense" />
       </ListItem>
