@@ -58,12 +58,20 @@ const ProjectListing = () => {
       );
       const result = await response.json();
       if (response.ok) {
+        // Parse activities if they are stringified
+        const updatedProject = {
+          ...result.project,
+          activities: Array.isArray(result.project.activities)
+            ? result.project.activities
+            : JSON.parse(result.project.activities || "[]"),
+        };
+  
         setProjects(
           projects.map((p) =>
-            p.id === selectedProject.id ? { ...result.project } : p
+            p.id === selectedProject.id ? updatedProject : p
           )
         );
-        setSelectedProject(result.project);
+        setSelectedProject(updatedProject);
       } else {
         console.error("Error updating project status", result.message);
       }
@@ -71,6 +79,7 @@ const ProjectListing = () => {
       console.error("Error updating project status", error);
     }
   };
+  
 
   const handleOpen = (project) => {
     // Ensure activities is always an array

@@ -14,7 +14,7 @@ import {
   Alert,
 } from "@mui/material";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import { green } from "@mui/material/colors";
+import { blue } from "@mui/material/colors";
 
 const ExpenseLoggingForm = () => {
   const [project, setProject] = useState("");
@@ -28,6 +28,8 @@ const ExpenseLoggingForm = () => {
 
   const [projects, setProjects] = useState([]); // Projects from the database
   const [activities, setActivities] = useState([]); // Activities based on the selected project
+  const [fileUploading, setFileUploading] = useState(false); // New state for file upload
+  const [fieldsDisabled, setFieldsDisabled] = useState(false); // New state to disable amount/description
 
   // Fetch Projects from the backend when the component loads
   useEffect(() => {
@@ -54,7 +56,7 @@ const ExpenseLoggingForm = () => {
   // Update activities when the selected project changes
   useEffect(() => {
     if (project) {
-      const selectedProject = projects.find(proj => proj.name === project);
+      const selectedProject = projects.find((proj) => proj.name === project);
       if (selectedProject) {
         try {
           const parsedActivities = JSON.parse(selectedProject.activities);
@@ -89,15 +91,15 @@ const ExpenseLoggingForm = () => {
 
     try {
       const response = await fetch("http://localhost:8000/api/expenses/", {
-        headers:{
-          'Authorization': localStorage.getItem('token'),
+        headers: {
+          Authorization: localStorage.getItem("token"),
         },
         method: "POST",
         body: formData,
       });
 
       const result = await response.json();
-      if (result.success) {
+      if (response.status === 201) {
         setAmount(result.amount || "");
         setSuccessMessage("Expense logged successfully!");
         clearForm();
@@ -119,8 +121,41 @@ const ExpenseLoggingForm = () => {
     setReceipt(null);
   };
 
-  const handleFileChange = (e) => {
-    setReceipt(e.target.files[0]);
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    setReceipt(selectedFile);
+
+    if (selectedFile) {
+      setFieldsDisabled(true); // Disable amount and description fields
+      setFileUploading(true); // Show file upload loader
+
+      const formData = new FormData();
+      formData.append("receipt", selectedFile);
+
+      try {
+        const response = await fetch("http://localhost:8000/api/file/", {
+          method: "POST",
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          setAmount(result.amount || ""); // Populate amount
+          setDescription(result.description || ""); // Populate description
+        } else {
+          setError(result.error || "Error processing file.");
+        }
+      } catch (error) {
+        setError("Error uploading file.");
+      } finally {
+        setFileUploading(false); // Hide file upload loader
+        setFieldsDisabled(false); // Enable amount and description fields
+      }
+    }
   };
 
   return (
@@ -131,10 +166,10 @@ const ExpenseLoggingForm = () => {
         maxWidth: 600,
         margin: "0 auto",
         padding: 4,
-        border: `1px solid ${green[500]}`,
+        border: `1px solid ${blue[500]}`,
         borderRadius: 2,
         boxShadow: 3,
-        backgroundColor: "#fff",
+        backgroundColor: "#f0f4ff",
         position: "relative",
       }}
     >
@@ -142,31 +177,19 @@ const ExpenseLoggingForm = () => {
         variant="h4"
         gutterBottom
         align="center"
-        sx={{ marginBottom: 3, color: green[700] }}
+        sx={{ marginBottom: 3, color: blue[700], fontWeight: "bold" }}
       >
         Log Expense
       </Typography>
 
-      {/* Display Success or Error Messages */}
-      {successMessage && (
-        <Alert severity="success" sx={{ marginBottom: 2 }}>
-          {successMessage}
-        </Alert>
-      )}
-      {error && (
-        <Alert severity="error" sx={{ marginBottom: 2 }}>
-          {error}
-        </Alert>
-      )}
-
       {/* Project Dropdown */}
-      <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }}>
-        <InputLabel sx={{ color: green[700] }}>Project</InputLabel>
+      <FormControl fullWidth margin="normal" sx={{ marginBottom: 3 }}>
+        <InputLabel sx={{ color: blue[700] }}>Project</InputLabel>
         <Select
           value={project}
           onChange={(e) => setProject(e.target.value)}
           label="Project"
-          sx={{ padding: 1, color: green[800] }}
+          sx={{ padding: 1, color: blue[800] }}
         >
           {projects.map((proj) => (
             <MenuItem key={proj.id} value={proj.name}>
@@ -177,13 +200,13 @@ const ExpenseLoggingForm = () => {
       </FormControl>
 
       {/* Activity Dropdown */}
-      <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }}>
-        <InputLabel sx={{ color: green[700] }}>Activity</InputLabel>
+      <FormControl fullWidth margin="normal" sx={{ marginBottom: 3 }}>
+        <InputLabel sx={{ color: blue[700] }}>Activity</InputLabel>
         <Select
           value={activity}
           onChange={(e) => setActivity(e.target.value)}
           label="Activity"
-          sx={{ padding: 1, color: green[800] }}
+          sx={{ padding: 1, color: blue[800] }}
         >
           {activities.map((act, index) => (
             <MenuItem key={index} value={act}>
@@ -202,11 +225,12 @@ const ExpenseLoggingForm = () => {
         onChange={(e) => setDescription(e.target.value)}
         placeholder="Enter a description"
         sx={{
-          marginBottom: 2,
-          input: { color: green[800] },
-          label: { color: green[700] },
+          marginBottom: 3,
+          input: { color: blue[800] },
+          label: { color: blue[700] },
         }}
         required
+        disabled={fieldsDisabled} // Disable when file is uploading
       />
 
       <TextField
@@ -218,26 +242,27 @@ const ExpenseLoggingForm = () => {
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Enter the amount"
         sx={{
-          marginBottom: 2,
-          input: { color: green[800] },
-          label: { color: green[700] },
+          marginBottom: 3,
+          input: { color: blue[800] },
+          label: { color: blue[700] },
         }}
         required
+        disabled={fieldsDisabled} // Disable when file is uploading
       />
 
-      <FormControl fullWidth margin="normal" sx={{ marginBottom: 2 }}>
-        <InputLabel sx={{ color: green[700] }} htmlFor="receipt">
-          Receipt
-        </InputLabel>
+      <FormControl fullWidth margin="normal" sx={{ marginBottom: 3 }}>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Input
             id="receipt"
             type="file"
             onChange={handleFileChange}
             inputProps={{ accept: "image/*" }}
-            sx={{ flexGrow: 1, marginRight: 1 }}
+            sx={{ flexGrow: 1, marginLeft: 10 }}
           />
-          <IconButton sx={{ color: green[700] }}>
+          <InputLabel sx={{ color: blue[700] }} htmlFor="receipt">
+            Receipt
+          </InputLabel>
+          <IconButton sx={{ color: blue[700] }}>
             <AttachFileIcon />
           </IconButton>
         </Box>
@@ -245,14 +270,14 @@ const ExpenseLoggingForm = () => {
 
       <Button
         variant="contained"
-        color="success"
+        color="primary"
         type="submit"
         fullWidth
-        disabled={loading}
+        disabled={loading || fileUploading} // Disable submit during loading or file upload
         sx={{
           padding: 1.5,
-          backgroundColor: green[500],
-          "&:hover": { backgroundColor: green[700] },
+          backgroundColor: blue[500],
+          "&:hover": { backgroundColor: blue[700] },
           position: "relative",
         }}
       >
@@ -270,6 +295,18 @@ const ExpenseLoggingForm = () => {
         )}
         Submit Expense
       </Button>
+
+      {/* Display Success or Error Messages */}
+      {successMessage && (
+        <Alert severity="success" sx={{ marginBottom: 2 }}>
+          {successMessage}
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
+          {error}
+        </Alert>
+      )}
     </Box>
   );
 };

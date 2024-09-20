@@ -20,7 +20,7 @@ const LoginForm = () => {
       alignItems="center"
       justifyContent="center"
       minHeight="100vh"
-      sx={{ backgroundColor: '#04e762' }}
+      sx={{ backgroundColor: '#0096c7' }}
     >
       <Box
         component="form"

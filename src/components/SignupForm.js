@@ -40,8 +40,8 @@ const SignupForm = () => {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      minHeight="100vh"
-      sx={{ backgroundColor: '#04e762' }}
+      minHeight="120vh"
+      sx={{ backgroundColor: '#0096c7' }}
     >
       <Box
         component="form"
@@ -49,7 +49,7 @@ const SignupForm = () => {
         sx={{
           maxWidth: 600,
           width: '100%',
-          padding: 3,
+          padding: 6,
           border: '1px solid #ddd',
           borderRadius: 2,
           boxShadow: 2,
